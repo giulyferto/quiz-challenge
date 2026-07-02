@@ -8,6 +8,7 @@ interface QuestionInput {
   text: string
   options: string[]
   correctAnswer: number
+  explanation?: string
   order?: number
 }
 
@@ -46,6 +47,8 @@ quizRouter.get('/:id', optionalAuthenticate, async (req, res) => {
     return
   }
 
+  // correctAnswer/explanation are withheld until the player finishes an attempt
+  // (see attempt review endpoint), so they can't be read off the network tab.
   const isAdmin = req.user?.role === 'ADMIN'
   const questions = quiz.questions.map((q) =>
     isAdmin ? q : { id: q.id, text: q.text, options: q.options, order: q.order },
@@ -80,6 +83,7 @@ quizRouter.post('/', authenticate, requireRole('ADMIN'), async (req, res) => {
               text: q.text,
               options: q.options,
               correctAnswer: q.correctAnswer,
+              explanation: q.explanation,
               order: q.order ?? i,
             })),
           }
@@ -120,6 +124,7 @@ quizRouter.post('/:id/questions', authenticate, requireRole('ADMIN'), async (req
       text: input.text,
       options: input.options,
       correctAnswer: input.correctAnswer,
+      explanation: input.explanation,
       order: input.order ?? 0,
     },
   })
@@ -131,10 +136,10 @@ quizRouter.patch(
   authenticate,
   requireRole('ADMIN'),
   async (req, res) => {
-    const { text, options, correctAnswer, order } = req.body as Partial<QuestionInput>
+    const { text, options, correctAnswer, explanation, order } = req.body as Partial<QuestionInput>
     const question = await prisma.question.update({
       where: { id: req.params.questionId },
-      data: { text, options, correctAnswer, order },
+      data: { text, options, correctAnswer, explanation, order },
     })
     res.json(question)
   },
