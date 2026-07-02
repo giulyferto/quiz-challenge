@@ -1,0 +1,109 @@
+import { useState, type FormEvent } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { ApiError, api } from '@/lib/api'
+import type { Category } from '@/lib/types'
+
+interface Errors {
+  name?: string
+}
+
+function validate(name: string): Errors {
+  const errors: Errors = {}
+  const trimmed = name.trim()
+  if (!trimmed) {
+    errors.name = 'Name is required'
+  } else if (trimmed.length < 2) {
+    errors.name = 'Name must be at least 2 characters'
+  }
+  return errors
+}
+
+interface CategoryManagerProps {
+  categories: Category[]
+  onCreated: (category: Category) => void
+}
+
+export function CategoryManager({ categories, onCreated }: CategoryManagerProps) {
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+  const [errors, setErrors] = useState<Errors>({})
+  const [formError, setFormError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    const validationErrors = validate(name)
+    setErrors(validationErrors)
+    if (Object.keys(validationErrors).length > 0) return
+
+    setFormError(null)
+    setSubmitting(true)
+    try {
+      const category = await api.post<Category>('/categories', {
+        name: name.trim(),
+        description: description.trim() || undefined,
+      })
+      onCreated(category)
+      setName('')
+      setDescription('')
+    } catch (err) {
+      setFormError(err instanceof ApiError ? err.message : 'Something went wrong')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Categories</CardTitle>
+        <CardDescription>Create a category to group quizzes under.</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-6">
+        <form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="category-name">Name</Label>
+            <Input
+              id="category-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              aria-invalid={!!errors.name}
+            />
+            {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="category-description">Description (optional)</Label>
+            <Textarea
+              id="category-description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+          {formError && <p className="text-sm text-destructive">{formError}</p>}
+          <Button type="submit" disabled={submitting} className="self-start">
+            {submitting ? 'Creating…' : 'Create category'}
+          </Button>
+        </form>
+
+        <div className="flex flex-col gap-2">
+          <p className="text-sm font-medium">Existing categories</p>
+          {categories.length === 0 && (
+            <p className="text-sm text-muted-foreground">No categories yet.</p>
+          )}
+          <div className="flex flex-wrap gap-2">
+            {categories.map((category) => (
+              <Badge key={category.id} variant="secondary">
+                {category.name}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}

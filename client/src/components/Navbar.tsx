@@ -21,6 +21,14 @@ export function Navbar() {
               >
                 My Attempts
               </Link>
+              {user.role === 'ADMIN' && (
+                <Link
+                  to="/admin"
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                >
+                  Admin
+                </Link>
+              )}
               <span className="flex items-center gap-2 text-sm text-muted-foreground">
                 {user.name}
                 <Badge variant="secondary">{user.role}</Badge>
