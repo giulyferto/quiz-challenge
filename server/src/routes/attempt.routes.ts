@@ -87,7 +87,11 @@ attemptRouter.post('/:id/answers', async (req, res) => {
     create: { attemptId: attempt.id, questionId, selectedAnswer: selectedAnswer!, isCorrect },
     update: { selectedAnswer: selectedAnswer!, isCorrect },
   })
-  res.status(201).json(answer)
+  res.status(201).json({
+    ...answer,
+    correctAnswer: question.correctAnswer,
+    explanation: question.explanation,
+  })
 })
 
 attemptRouter.post('/:id/finish', async (req, res) => {

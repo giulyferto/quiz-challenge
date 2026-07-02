@@ -56,6 +56,28 @@ quizRouter.get('/:id', optionalAuthenticate, async (req, res) => {
   res.json({ ...quiz, questions })
 })
 
+// Public: lets anyone (logged in or not) get immediate right/wrong + explanation
+// for a single question without needing a tracked Attempt.
+quizRouter.post('/:id/questions/:questionId/check', async (req, res) => {
+  const { selectedAnswer } = req.body as { selectedAnswer?: number }
+  if (!Number.isInteger(selectedAnswer)) {
+    res.status(400).json({ error: 'selectedAnswer is required' })
+    return
+  }
+
+  const question = await prisma.question.findUnique({ where: { id: req.params.questionId } })
+  if (!question || question.quizId !== req.params.id) {
+    res.status(404).json({ error: 'Question not found' })
+    return
+  }
+
+  res.json({
+    isCorrect: selectedAnswer === question.correctAnswer,
+    correctAnswer: question.correctAnswer,
+    explanation: question.explanation,
+  })
+})
+
 quizRouter.post('/', authenticate, requireRole('ADMIN'), async (req, res) => {
   const { title, description, categoryId, questions } = req.body as {
     title?: string

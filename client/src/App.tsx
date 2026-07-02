@@ -17,9 +17,9 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/categories/:id" element={<CategoryQuizzesPage />} />
+        <Route path="/quizzes/:id" element={<QuizAttemptPage />} />
         <Route element={<ProtectedRoute />}>
-          <Route path="/categories/:id" element={<CategoryQuizzesPage />} />
-          <Route path="/quizzes/:id" element={<QuizAttemptPage />} />
           <Route path="/attempts" element={<AttemptsPage />} />
           <Route path="/attempts/:id" element={<AttemptReviewPage />} />
         </Route>

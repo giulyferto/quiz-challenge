@@ -29,7 +29,8 @@ export function HomePage() {
         <Card className="border-primary/40 bg-primary/5">
           <CardContent className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm">
-              Log in or register to take quizzes and keep track of your attempts.
+              You can play any quiz as a guest. Log in or register to save your attempts and
+              track your progress over time.
             </p>
             <div className="flex gap-2">
               <Button size="sm" variant="outline" asChild>
