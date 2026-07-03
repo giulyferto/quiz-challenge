@@ -37,7 +37,7 @@ export function RegisterPage() {
         <CardHeader>
           <span className="font-mono text-xs uppercase tracking-widest text-primary">// register</span>
           <CardTitle className="font-heading text-xl font-medium">Create an account</CardTitle>
-          <CardDescription>Register as a player to start taking quizzes.</CardDescription>
+          <CardDescription>Register as a player to start testing your AI knowledge.</CardDescription>
         </CardHeader>
         <CardContent>
           <form className="flex flex-col gap-4" onSubmit={handleSubmit}>

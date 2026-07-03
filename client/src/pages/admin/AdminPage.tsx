@@ -21,7 +21,7 @@ export function AdminPage() {
         <span className="font-mono text-xs uppercase tracking-widest text-primary">// admin</span>
         <h1 className="font-heading text-3xl font-medium tracking-tight">Admin</h1>
         <p className="text-sm text-muted-foreground">
-          Create categories, quizzes, and questions.
+          Create AI topics, quizzes, and questions that test AI knowledge.
         </p>
       </div>
 

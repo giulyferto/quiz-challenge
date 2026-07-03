@@ -61,8 +61,11 @@ export function CategoryManager({ categories, onCreated }: CategoryManagerProps)
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Categories</CardTitle>
-        <CardDescription>Create a category to group quizzes under.</CardDescription>
+        <CardTitle>AI Topics</CardTitle>
+        <CardDescription>
+          Create a topic to group AI quizzes under, e.g. LLM Fundamentals, Prompt Engineering, AI
+          Agents, AI Safety &amp; Ethics.
+        </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
         <form className="flex flex-col gap-3" onSubmit={handleSubmit} noValidate>
@@ -86,14 +89,14 @@ export function CategoryManager({ categories, onCreated }: CategoryManagerProps)
           </div>
           {formError && <p className="text-sm text-destructive">{formError}</p>}
           <Button type="submit" disabled={submitting} className="self-start">
-            {submitting ? 'Creating…' : 'Create category'}
+            {submitting ? 'Creating…' : 'Create topic'}
           </Button>
         </form>
 
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-medium">Existing categories</p>
+          <p className="text-sm font-medium">Existing topics</p>
           {categories.length === 0 && (
-            <p className="text-sm text-muted-foreground">No categories yet.</p>
+            <p className="text-sm text-muted-foreground">No AI topics yet.</p>
           )}
           <div className="flex flex-wrap gap-2">
             {categories.map((category) => (

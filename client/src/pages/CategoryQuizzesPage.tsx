@@ -28,7 +28,7 @@ export function CategoryQuizzesPage() {
   if (!category) {
     return (
       <p className="mx-auto max-w-4xl px-4 py-8 font-mono text-sm text-muted-foreground">
-        category not found.
+        AI topic not found.
       </p>
     )
   }
@@ -40,7 +40,7 @@ export function CategoryQuizzesPage() {
           to="/"
           className="flex w-fit items-center gap-1 font-mono text-xs text-muted-foreground transition-colors hover:text-foreground"
         >
-          <ArrowLeft className="size-3" /> all categories
+          <ArrowLeft className="size-3" /> all AI topics
         </Link>
         <h1 className="font-heading text-3xl font-medium tracking-tight">{category.name}</h1>
         {category.description && (
@@ -49,7 +49,7 @@ export function CategoryQuizzesPage() {
       </div>
 
       {category.quizzes.length === 0 && (
-        <p className="font-mono text-sm text-muted-foreground">no quizzes in this category yet.</p>
+        <p className="font-mono text-sm text-muted-foreground">no quizzes in this topic yet.</p>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">

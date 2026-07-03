@@ -33,7 +33,7 @@ interface QuestionFormErrors {
 function validateQuizForm(title: string, categoryId: string): QuizFormErrors {
   const errors: QuizFormErrors = {}
   if (!title.trim()) errors.title = 'Title is required'
-  if (!categoryId) errors.categoryId = 'Pick a category'
+  if (!categoryId) errors.categoryId = 'Pick an AI topic'
   return errors
 }
 
@@ -192,17 +192,17 @@ export function QuizQuestionManager({ categories }: QuizQuestionManagerProps) {
       <Card>
         <CardHeader>
           <CardTitle>Quizzes</CardTitle>
-          <CardDescription>Pick a category, then select or create a quiz.</CardDescription>
+          <CardDescription>Pick an AI topic, then select or create a quiz.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-6">
           {categories.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Create a category first.</p>
+            <p className="text-sm text-muted-foreground">Create an AI topic first.</p>
           ) : (
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="category-select">Category</Label>
+              <Label htmlFor="category-select">AI Topic</Label>
               <Select value={categoryId} onValueChange={setCategoryId}>
                 <SelectTrigger id="category-select" className="w-full">
-                  <SelectValue placeholder="Select a category" />
+                  <SelectValue placeholder="Select an AI topic" />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((category) => (
@@ -226,7 +226,7 @@ export function QuizQuestionManager({ categories }: QuizQuestionManagerProps) {
                         loadingQuizzes
                           ? 'Loading…'
                           : quizzes.length === 0
-                            ? 'No quizzes yet in this category'
+                            ? 'No quizzes yet in this topic'
                             : 'Select a quiz'
                       }
                     />

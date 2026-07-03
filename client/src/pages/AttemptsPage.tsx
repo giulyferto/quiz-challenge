@@ -26,7 +26,7 @@ export function AttemptsPage() {
       {loading && <p className="font-mono text-sm text-muted-foreground">loading…</p>}
       {!loading && attempts.length === 0 && (
         <p className="font-mono text-sm text-muted-foreground">
-          no attempts yet — pick a category to run your first quiz.
+          no attempts yet — pick an AI topic to run your first quiz.
         </p>
       )}
 

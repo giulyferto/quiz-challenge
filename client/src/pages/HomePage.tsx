@@ -22,13 +22,14 @@ export function HomePage() {
     <div className="mx-auto flex max-w-4xl flex-col gap-10 px-4 py-10">
       <div className="flex flex-col gap-2">
         <span className="font-mono text-xs uppercase tracking-widest text-primary">
-          // pick a category
+          // pick an AI topic
         </span>
         <h1 className="font-heading text-3xl font-medium tracking-tight text-balance">
-          What are you here to get tested on?
+          How well do you actually know AI?
         </h1>
         <p className="max-w-xl text-sm text-muted-foreground">
-          Each quiz runs like a short evaluation: answer, get scored, see exactly where it broke.
+          This is an AI-knowledge testing ground — every quiz here covers AI concepts, models, and
+          agents. Answer, get scored, see exactly where it broke.
         </p>
       </div>
 
@@ -53,7 +54,7 @@ export function HomePage() {
       )}
 
       {!loading && categories.length === 0 && (
-        <p className="font-mono text-sm text-muted-foreground">no categories yet.</p>
+        <p className="font-mono text-sm text-muted-foreground">no AI topics yet.</p>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">
