@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuth } from '@/lib/auth-context'
 import { api } from '@/lib/api'
 import type { Category } from '@/lib/types'
@@ -19,54 +19,67 @@ export function HomePage() {
   }, [])
 
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-8">
-      <div>
-        <h1 className="font-heading text-2xl font-medium">Quiz Categories</h1>
-        <p className="text-sm text-muted-foreground">Pick a category to see its quizzes.</p>
+    <div className="mx-auto flex max-w-4xl flex-col gap-10 px-4 py-10">
+      <div className="flex flex-col gap-2">
+        <span className="font-mono text-xs uppercase tracking-widest text-primary">
+          // pick a category
+        </span>
+        <h1 className="font-heading text-3xl font-medium tracking-tight text-balance">
+          What are you here to get tested on?
+        </h1>
+        <p className="max-w-xl text-sm text-muted-foreground">
+          Each quiz runs like a short evaluation: answer, get scored, see exactly where it broke.
+        </p>
       </div>
 
       {!user && (
-        <Card className="border-primary/40 bg-primary/5">
-          <CardContent className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm">
-              You can play any quiz as a guest. Log in or register to save your attempts and
-              track your progress over time.
-            </p>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" asChild>
-                <Link to="/login">Log in</Link>
-              </Button>
-              <Button size="sm" asChild>
-                <Link to="/register">Register</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-primary/25 bg-accent/60 px-4 py-3">
+          <p className="text-sm text-accent-foreground">
+            You can run any quiz as a guest. Log in to persist your results across sessions.
+          </p>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" asChild>
+              <Link to="/login">Log in</Link>
+            </Button>
+            <Button size="sm" asChild>
+              <Link to="/register">Register</Link>
+            </Button>
+          </div>
+        </div>
       )}
 
-      {loading && <p className="text-sm text-muted-foreground">Loading categories…</p>}
+      {loading && (
+        <p className="font-mono text-sm text-muted-foreground">loading categories…</p>
+      )}
 
       {!loading && categories.length === 0 && (
-        <p className="text-sm text-muted-foreground">No categories yet.</p>
+        <p className="font-mono text-sm text-muted-foreground">no categories yet.</p>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        {categories.map((category) => (
-          <Link key={category.id} to={`/categories/${category.id}`}>
-            <Card className="h-full transition-shadow hover:shadow-md">
-              <CardHeader>
-                <CardTitle>{category.name}</CardTitle>
+        {categories.map((category) => {
+          const count = category._count?.quizzes ?? 0
+          return (
+            <Link
+              key={category.id}
+              to={`/categories/${category.id}`}
+              className="group flex flex-col justify-between gap-6 rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary/50"
+            >
+              <div className="flex flex-col gap-1.5">
+                <h2 className="font-heading text-lg font-medium">{category.name}</h2>
                 {category.description && (
-                  <CardDescription>{category.description}</CardDescription>
+                  <p className="text-sm text-muted-foreground">{category.description}</p>
                 )}
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">
-                {category._count?.quizzes ?? 0} quiz
-                {category._count?.quizzes === 1 ? '' : 'es'}
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-xs text-muted-foreground">
+                  {count} quiz{count === 1 ? '' : 'zes'} available
+                </span>
+                <ArrowRight className="size-4 shrink-0 text-primary opacity-0 transition-opacity group-hover:opacity-100" />
+              </div>
+            </Link>
+          )
+        })}
       </div>
     </div>
   )

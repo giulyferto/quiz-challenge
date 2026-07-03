@@ -35,7 +35,8 @@ export function RegisterPage() {
     <div className="mx-auto flex max-w-sm flex-col gap-6 px-4 py-16">
       <Card>
         <CardHeader>
-          <CardTitle>Create an account</CardTitle>
+          <span className="font-mono text-xs uppercase tracking-widest text-primary">// register</span>
+          <CardTitle className="font-heading text-xl font-medium">Create an account</CardTitle>
           <CardDescription>Register as a player to start taking quizzes.</CardDescription>
         </CardHeader>
         <CardContent>

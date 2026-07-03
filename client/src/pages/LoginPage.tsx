@@ -36,7 +36,8 @@ export function LoginPage() {
     <div className="mx-auto flex max-w-sm flex-col gap-6 px-4 py-16">
       <Card>
         <CardHeader>
-          <CardTitle>Log in</CardTitle>
+          <span className="font-mono text-xs uppercase tracking-widest text-primary">// authenticate</span>
+          <CardTitle className="font-heading text-xl font-medium">Log in</CardTitle>
           <CardDescription>Log in to take quizzes and track your attempts.</CardDescription>
         </CardHeader>
         <CardContent>

@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { Check, X } from 'lucide-react'
+import { ArrowLeft, Check, X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { api } from '@/lib/api'
 import type { AttemptDetail } from '@/lib/types'
+
+const OPTION_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F']
 
 export function AttemptReviewPage() {
   const { id } = useParams<{ id: string }>()
@@ -21,25 +23,28 @@ export function AttemptReviewPage() {
   }, [id])
 
   if (loading) {
-    return <p className="mx-auto max-w-2xl px-4 py-8 text-sm text-muted-foreground">Loading…</p>
+    return <p className="mx-auto max-w-2xl px-4 py-8 font-mono text-sm text-muted-foreground">loading…</p>
   }
   if (!attempt) {
-    return <p className="mx-auto max-w-2xl px-4 py-8 text-sm text-muted-foreground">Attempt not found.</p>
+    return <p className="mx-auto max-w-2xl px-4 py-8 font-mono text-sm text-muted-foreground">attempt not found.</p>
   }
 
   const answers = [...attempt.answers].sort((a, b) => a.question.order - b.question.order)
   const total = answers.length
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-8">
-      <div>
-        <Link to="/attempts" className="text-sm text-muted-foreground hover:text-foreground">
-          ← My attempts
+    <div className="mx-auto flex max-w-2xl flex-col gap-8 px-4 py-10">
+      <div className="flex flex-col gap-2">
+        <Link
+          to="/attempts"
+          className="flex w-fit items-center gap-1 font-mono text-xs text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="size-3" /> my attempts
         </Link>
-        <div className="mt-2 flex items-center justify-between">
-          <h1 className="font-heading text-2xl font-medium">{attempt.quiz?.title}</h1>
-          <Badge variant="secondary" className="text-sm">
-            Score: {attempt.score} / {total}
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="font-heading text-2xl font-medium tracking-tight">{attempt.quiz?.title}</h1>
+          <Badge variant="secondary" className="font-mono text-sm">
+            {attempt.score} / {total}
           </Badge>
         </div>
       </div>
@@ -48,16 +53,17 @@ export function AttemptReviewPage() {
         {answers.map((answer, index) => (
           <Card key={answer.id}>
             <CardHeader className="flex-row items-start justify-between gap-2">
-              <CardTitle className="text-base">
-                {index + 1}. {answer.question.text}
+              <CardTitle className="text-base leading-snug">
+                <span className="font-mono text-muted-foreground">{String(index + 1).padStart(2, '0')}</span>{' '}
+                {answer.question.text}
               </CardTitle>
               {answer.isCorrect ? (
-                <Badge variant="secondary" className="gap-1">
-                  <Check className="size-3" /> Correct
+                <Badge variant="success" className="gap-1">
+                  <Check className="size-3" /> pass
                 </Badge>
               ) : (
                 <Badge variant="destructive" className="gap-1">
-                  <X className="size-3" /> Incorrect
+                  <X className="size-3" /> fail
                 </Badge>
               )}
             </CardHeader>
@@ -69,17 +75,20 @@ export function AttemptReviewPage() {
                   <div
                     key={i}
                     className={cn(
-                      'rounded-lg border p-3 text-sm',
-                      isCorrectOption && 'border-primary bg-primary/5',
-                      isSelectedOption && !isCorrectOption && 'border-destructive bg-destructive/5',
+                      'flex items-center gap-3 rounded-lg border p-3 text-sm',
+                      isCorrectOption && 'border-success bg-success/10',
+                      isSelectedOption && !isCorrectOption && 'border-destructive bg-destructive/10',
                     )}
                   >
-                    {option}
+                    <span className="flex size-6 shrink-0 items-center justify-center rounded-sm border border-border font-mono text-xs text-muted-foreground">
+                      {OPTION_LETTERS[i] ?? i + 1}
+                    </span>
+                    <span className="flex-1">{option}</span>
                     {isCorrectOption && (
-                      <span className="ml-2 text-xs text-muted-foreground">(correct answer)</span>
+                      <span className="font-mono text-xs text-muted-foreground">correct</span>
                     )}
                     {isSelectedOption && !isCorrectOption && (
-                      <span className="ml-2 text-xs text-muted-foreground">(your answer)</span>
+                      <span className="font-mono text-xs text-muted-foreground">your answer</span>
                     )}
                   </div>
                 )

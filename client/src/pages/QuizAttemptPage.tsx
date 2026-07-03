@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
-import { Progress } from '@/components/ui/progress'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { useAuth } from '@/lib/auth-context'
 import { api } from '@/lib/api'
@@ -23,14 +22,42 @@ interface QuestionResult {
   isCorrect: boolean
 }
 
+const OPTION_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F']
+
 function performanceFeedback(percentage: number): { label: string; message: string } {
   if (percentage >= 80) {
-    return { label: 'Excellent', message: 'Excellent! You really know this material.' }
+    return { label: 'Pass — strong signal', message: 'Excellent! You really know this material.' }
   }
   if (percentage >= 50) {
-    return { label: 'Keep practicing', message: 'Good effort — keep practicing to sharpen these skills.' }
+    return { label: 'Partial pass', message: 'Good effort — keep practicing to sharpen these skills.' }
   }
   return { label: 'Needs review', message: 'Needs review — consider going through the material again.' }
+}
+
+function RunStrip({ total, currentIndex, results }: { total: number; currentIndex: number; results: QuestionResult[] }) {
+  return (
+    <div className="flex gap-1">
+      {Array.from({ length: total }).map((_, i) => {
+        const result = results[i]
+        const isCurrent = !result && i === currentIndex
+        return (
+          <div
+            key={i}
+            className={cn(
+              'h-1.5 flex-1 rounded-full border transition-colors duration-150',
+              result
+                ? result.isCorrect
+                  ? 'border-success bg-success'
+                  : 'border-destructive bg-destructive'
+                : isCurrent
+                  ? 'border-primary bg-primary/25'
+                  : 'border-border bg-transparent',
+            )}
+          />
+        )
+      })}
+    </div>
+  )
 }
 
 export function QuizAttemptPage() {
@@ -62,10 +89,10 @@ export function QuizAttemptPage() {
   }, [id])
 
   if (loading) {
-    return <p className="mx-auto max-w-2xl px-4 py-8 text-sm text-muted-foreground">Loading…</p>
+    return <p className="mx-auto max-w-2xl px-4 py-8 font-mono text-sm text-muted-foreground">loading…</p>
   }
   if (!quiz) {
-    return <p className="mx-auto max-w-2xl px-4 py-8 text-sm text-muted-foreground">Quiz not found.</p>
+    return <p className="mx-auto max-w-2xl px-4 py-8 font-mono text-sm text-muted-foreground">quiz not found.</p>
   }
 
   async function startQuiz() {
@@ -123,19 +150,20 @@ export function QuizAttemptPage() {
 
   if (!started) {
     return (
-      <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-8">
+      <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-10">
         <Card>
           <CardHeader>
-            <CardTitle>{quiz.title}</CardTitle>
+            <span className="font-mono text-xs uppercase tracking-widest text-primary">quiz</span>
+            <CardTitle className="font-heading text-2xl font-medium">{quiz.title}</CardTitle>
             {quiz.description && <CardDescription>{quiz.description}</CardDescription>}
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
-            <p>
-              {quiz.questions.length} question{quiz.questions.length === 1 ? '' : 's'}
+            <p className="font-mono text-xs">
+              {quiz.questions.length} question{quiz.questions.length === 1 ? '' : 's'} · scored on submit
             </p>
             {!user && (
-              <p className="mt-2">
-                You're playing as a guest — your score won't be saved.{' '}
+              <p className="mt-3">
+                You're running this as a guest — your score won't be saved.{' '}
                 <Link to="/login" className="text-primary underline-offset-4 hover:underline">
                   Log in
                 </Link>{' '}
@@ -160,19 +188,20 @@ export function QuizAttemptPage() {
     const correctCount = results.filter((r) => r.isCorrect).length
     const percentage = Math.round((correctCount / total) * 100)
     const { label, message } = performanceFeedback(percentage)
-    const badgeVariant = percentage >= 80 ? 'secondary' : percentage >= 50 ? 'outline' : 'destructive'
+    const badgeVariant = percentage >= 80 ? 'success' : percentage >= 50 ? 'outline' : 'destructive'
 
     return (
-      <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-8">
+      <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-10">
         <Card>
           <CardHeader>
-            <CardTitle>Quiz complete!</CardTitle>
-            <CardDescription>{quiz.title}</CardDescription>
+            <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">run complete</span>
+            <CardTitle className="font-heading text-2xl font-medium">{quiz.title}</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col items-center gap-3 py-6 text-center">
-            <p className="font-heading text-4xl font-medium">{percentage}%</p>
-            <p className="text-sm text-muted-foreground">
-              {correctCount} out of {total} correct
+          <CardContent className="flex flex-col items-center gap-4 py-6 text-center">
+            <p className="font-mono text-5xl font-medium tabular-nums">{percentage}%</p>
+            <RunStrip total={total} currentIndex={-1} results={results} />
+            <p className="font-mono text-xs text-muted-foreground">
+              {correctCount} passed · {total - correctCount} failed · {total} total
             </p>
             <Badge variant={badgeVariant}>{label}</Badge>
             <p className="max-w-sm text-sm text-muted-foreground">{message}</p>
@@ -199,24 +228,26 @@ export function QuizAttemptPage() {
   }
 
   const question = quiz.questions[currentIndex]
-  const progress = ((currentIndex + (feedback ? 1 : 0)) / quiz.questions.length) * 100
   const isLast = currentIndex === quiz.questions.length - 1
   const selectedIndex = selected !== '' ? Number(selected) : undefined
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-8">
+    <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-10">
       <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>
-            Question {currentIndex + 1} of {quiz.questions.length}
-          </span>
+        <div className="flex items-center justify-between font-mono text-xs text-muted-foreground">
+          <span>question {currentIndex + 1} / {quiz.questions.length}</span>
+          {feedback && (
+            <span className={feedback.isCorrect ? 'text-success' : 'text-destructive'}>
+              {feedback.isCorrect ? 'pass' : 'fail'}
+            </span>
+          )}
         </div>
-        <Progress value={progress} />
+        <RunStrip total={quiz.questions.length} currentIndex={currentIndex} results={results} />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>{question.text}</CardTitle>
+          <CardTitle className="font-heading text-xl font-medium leading-snug">{question.text}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
           <RadioGroup value={selected} onValueChange={setSelected} disabled={!!feedback}>
@@ -227,15 +258,21 @@ export function QuizAttemptPage() {
                 <div
                   key={i}
                   className={cn(
-                    'flex items-center gap-2 rounded-lg border p-3',
-                    isCorrectOption && 'border-primary bg-primary/5',
-                    isWrongSelection && 'border-destructive bg-destructive/5',
+                    'flex items-center gap-3 rounded-lg border p-3 transition-colors',
+                    isCorrectOption && 'border-success bg-success/10',
+                    isWrongSelection && 'border-destructive bg-destructive/10',
+                    !feedback && 'has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5',
                   )}
                 >
-                  <RadioGroupItem value={String(i)} id={`option-${i}`} />
+                  <span className="flex size-6 shrink-0 items-center justify-center rounded-sm border border-border font-mono text-xs text-muted-foreground">
+                    {OPTION_LETTERS[i] ?? i + 1}
+                  </span>
+                  <RadioGroupItem value={String(i)} id={`option-${i}`} className="sr-only" />
                   <Label htmlFor={`option-${i}`} className="flex-1 cursor-pointer">
                     {option}
                   </Label>
+                  {isCorrectOption && <Check className="size-4 shrink-0 text-success" />}
+                  {isWrongSelection && <X className="size-4 shrink-0 text-destructive" />}
                 </div>
               )
             })}
@@ -245,13 +282,13 @@ export function QuizAttemptPage() {
             <div
               className={cn(
                 'flex items-start gap-2 rounded-lg border p-3 text-sm',
-                feedback.isCorrect ? 'border-primary bg-primary/5' : 'border-destructive bg-destructive/5',
+                feedback.isCorrect ? 'border-success bg-success/10' : 'border-destructive bg-destructive/10',
               )}
             >
               {feedback.isCorrect ? (
-                <Check className="mt-0.5 size-4 shrink-0" />
+                <Check className="mt-0.5 size-4 shrink-0 text-success" />
               ) : (
-                <X className="mt-0.5 size-4 shrink-0" />
+                <X className="mt-0.5 size-4 shrink-0 text-destructive" />
               )}
               <div>
                 <p className="font-medium">
