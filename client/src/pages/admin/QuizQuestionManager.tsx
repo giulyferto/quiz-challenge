@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { X } from 'lucide-react'
+import { Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { ApiError, api } from '@/lib/api'
 import type { Category, QuizDetail, QuizSummary } from '@/lib/types'
 
@@ -77,6 +78,12 @@ export function QuizQuestionManager({ categories }: QuizQuestionManagerProps) {
   const [questionErrors, setQuestionErrors] = useState<QuestionFormErrors>({})
   const [questionFormError, setQuestionFormError] = useState<string | null>(null)
   const [questionSubmitting, setQuestionSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (categoryId && !categories.some((c) => c.id === categoryId)) {
+      setCategoryId('')
+    }
+  }, [categories, categoryId])
 
   useEffect(() => {
     setQuizId('')
@@ -277,20 +284,68 @@ export function QuizQuestionManager({ categories }: QuizQuestionManagerProps) {
 
       {quizDetail && !loadingQuizDetail && (
         <Card>
-          <CardHeader>
-            <CardTitle>{quizDetail.title}</CardTitle>
-            <CardDescription>
-              {quizDetail.questions.length} question{quizDetail.questions.length === 1 ? '' : 's'}
-            </CardDescription>
+          <CardHeader className="flex-row items-start justify-between gap-2">
+            <div>
+              <CardTitle>{quizDetail.title}</CardTitle>
+              <CardDescription>
+                {quizDetail.questions.length} question{quizDetail.questions.length === 1 ? '' : 's'}
+              </CardDescription>
+            </div>
+            <ConfirmDialog
+              trigger={
+                <Button variant="destructive" size="sm">
+                  Delete quiz
+                </Button>
+              }
+              title={`Delete "${quizDetail.title}"?`}
+              description={
+                <>
+                  This will permanently delete this quiz and all{' '}
+                  {quizDetail.questions.length} question
+                  {quizDetail.questions.length === 1 ? '' : 's'} in it. This can't be undone.
+                </>
+              }
+              onConfirm={async () => {
+                await api.del(`/quizzes/${quizDetail.id}`)
+                setQuizzes((prev) => prev.filter((q) => q.id !== quizDetail.id))
+                setQuizId('')
+                setQuizDetail(null)
+              }}
+            />
           </CardHeader>
           <CardContent className="flex flex-col gap-6">
             {quizDetail.questions.length > 0 && (
               <div className="flex flex-col gap-2">
                 {quizDetail.questions.map((q, i) => (
                   <div key={q.id} className="rounded-lg border p-3 text-sm">
-                    <p className="font-medium">
-                      {i + 1}. {q.text}
-                    </p>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-medium">
+                        {i + 1}. {q.text}
+                      </p>
+                      <ConfirmDialog
+                        trigger={
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label={`Delete question ${i + 1}`}
+                            className="shrink-0"
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        }
+                        title="Delete this question?"
+                        description="This will permanently delete this question. This can't be undone."
+                        onConfirm={async () => {
+                          await api.del(`/quizzes/${quizDetail.id}/questions/${q.id}`)
+                          setQuizDetail((quiz) =>
+                            quiz
+                              ? { ...quiz, questions: quiz.questions.filter((qq) => qq.id !== q.id) }
+                              : quiz,
+                          )
+                        }}
+                      />
+                    </div>
                     <ul className="mt-1 flex flex-col gap-0.5 text-muted-foreground">
                       {q.options.map((option, oi) => (
                         <li key={oi} className={oi === q.correctAnswer ? 'font-medium text-foreground' : ''}>

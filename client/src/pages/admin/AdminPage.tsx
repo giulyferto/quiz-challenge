@@ -32,6 +32,7 @@ export function AdminPage() {
           <CategoryManager
             categories={categories}
             onCreated={(category) => setCategories((prev) => [...prev, category])}
+            onDeleted={(id) => setCategories((prev) => prev.filter((c) => c.id !== id))}
           />
           <QuizQuestionManager categories={categories} />
         </>
