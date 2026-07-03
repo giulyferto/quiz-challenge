@@ -255,10 +255,12 @@ export function QuizAttemptPage() {
               const isCorrectOption = feedback && i === feedback.correctAnswer
               const isWrongSelection = feedback && !feedback.isCorrect && i === selectedIndex
               return (
-                <div
+                <Label
                   key={i}
+                  htmlFor={`option-${i}`}
                   className={cn(
-                    'flex items-center gap-3 rounded-lg border p-3 transition-colors',
+                    'flex items-center gap-3 rounded-lg border p-3 font-normal transition-colors',
+                    !feedback && 'cursor-pointer',
                     isCorrectOption && 'border-success bg-success/10',
                     isWrongSelection && 'border-destructive bg-destructive/10',
                     !feedback && 'has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5',
@@ -268,12 +270,10 @@ export function QuizAttemptPage() {
                     {OPTION_LETTERS[i] ?? i + 1}
                   </span>
                   <RadioGroupItem value={String(i)} id={`option-${i}`} className="sr-only" />
-                  <Label htmlFor={`option-${i}`} className="flex-1 cursor-pointer">
-                    {option}
-                  </Label>
+                  <span className="flex-1">{option}</span>
                   {isCorrectOption && <Check className="size-4 shrink-0 text-success" />}
                   {isWrongSelection && <X className="size-4 shrink-0 text-destructive" />}
-                </div>
+                </Label>
               )
             })}
           </RadioGroup>
